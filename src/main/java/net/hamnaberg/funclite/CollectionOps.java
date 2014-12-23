@@ -134,7 +134,7 @@ public class CollectionOps {
     }
 
     public static <K, V> Map<K, Collection<V>> groupBy(Iterable<V> iterable, Function<V, K> grouper) {
-        Map<K, Collection<V>> map = new LinkedHashMap<K, Collection<V>>();
+        Map<K, Collection<V>> map = new LinkedHashMap<>();
         for (V v : iterable) {
             K key = grouper.apply(v);
             Collection<V> value = map.get(key);
@@ -183,7 +183,7 @@ public class CollectionOps {
             return ((Collection)iterable).size();
         }
         int size = 0;
-        for (A value : iterable) {
+        for (A ignore : iterable) {
             size++;
         }
         return size;
@@ -225,17 +225,27 @@ public class CollectionOps {
         return set;
     }
 
-    public static <A> A reduce(Iterable<A> iterable, Union<A> union, A seed) {
+    public static <A> A reduce(Iterable<A> iterable, Semigroup<A> semigroup, A seed) {
         A u = seed;
         for (A a : iterable) {
-            u = union.unite(u, a);
+            u = semigroup.append(u, a);
         }
 
         return u;
     }
 
-    public static <A> A foldLeft(Iterable<A> iterable, Union<A> union, A seed) {
-        return reduce(iterable, union, seed);
+    public static <A> A reduce(Iterable<A> iterable, Monoid<A> m) {
+        A u = m.zero();
+        for (A a : iterable) {
+            u = m.append(u, a);
+        }
+
+        return u;
+    }
+
+
+    public static <A> A foldLeft(Iterable<A> iterable, Semigroup<A> semigroup, A seed) {
+        return reduce(iterable, semigroup, seed);
     }
 
     public static <A, B> Map<B, Integer> countBy(Iterable<A> iterable, Function<A, B> f) {

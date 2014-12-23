@@ -58,4 +58,36 @@ public class OptionalTest {
         });
         assertEquals(some.get(), value.get());
     }
+
+    @Test
+    public void fold() {
+        Optional<String> opt = Optional.some("3");
+        Integer a = opt.fold(new Supplier<Integer>() {
+            @Override
+            public Integer get() {
+                fail("Some called noneF");
+                return null;
+            }
+        }, new Function<String, Integer>() {
+            @Override
+            public Integer apply(String input) {
+                return Integer.valueOf(input);
+            }
+        });
+        assertEquals(3, a.intValue());
+        Optional<String> opt2 = Optional.none();
+        Integer b = opt2.fold(new Supplier<Integer>() {
+            @Override
+            public Integer get() {
+                return 0;
+            }
+        }, new Function<String, Integer>() {
+            @Override
+            public Integer apply(String input) {
+                fail("None called someF");
+                return null;
+            }
+        });
+        assertEquals(0, b.intValue());
+    }
 }

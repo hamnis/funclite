@@ -99,10 +99,10 @@ public class CollectionOpsTest {
         }), is(m));
     }
 
-    private Union<Integer> sum() {
-        return new Union<Integer>() {
+    private Semigroup<Integer> sum() {
+        return new Semigroup<Integer>() {
             @Override
-            public Integer unite(Integer a, Integer b) {
+            public Integer append(Integer a, Integer b) {
                 return a + b;
             }
         };

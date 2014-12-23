@@ -73,7 +73,7 @@ public final class FunctionalList<A> implements List<A> {
         return CollectionOps.find(this, pred);
     }
 
-    public A reduce(Union<A> u, A seed) {
+    public A reduce(Semigroup<A> u, A seed) {
         return CollectionOps.reduce(this, u, seed);
     }
 

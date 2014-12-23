@@ -114,6 +114,10 @@ public abstract class Optional<A> implements Iterable<A> {
         return isSome() ? this : orElse;
     }
 
+    public <B> B fold(Supplier<B> noneF, Function<A, B> someF) {
+        return isNone() ? noneF.get() : someF.apply(get());
+    }
+
     @Override
     public final Iterator<A> iterator() {
         return new Iterator<A>() {
