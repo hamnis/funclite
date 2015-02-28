@@ -40,12 +40,7 @@ public class CollectionOpsTest {
         Set<Integer> numbers = CollectionOps.setOf(1,2,3,4,5,6,7);
 
         assertThat(CollectionOps.exists(numbers, Predicates.positive()), is(true));
-        assertThat(CollectionOps.exists(numbers, new Predicate<Integer>() {
-            @Override
-            public boolean apply(Integer input) {
-                return input == 3;
-            }
-        }), is(true));
+        assertThat(CollectionOps.exists(numbers, input -> input == 3), is(true));
     }
 
     @Test
@@ -85,26 +80,24 @@ public class CollectionOpsTest {
     }
 
     @Test
+    public void size() throws Exception {
+        List<Integer> numbers = CollectionOps.of(1, 2, 3, 4, 5);
+        assertThat(CollectionOps.size(numbers), is(5));
+        assertThat(CollectionOps.size(Optional.none()), is(0));
+        assertThat(CollectionOps.size(Optional.some(1)), is(1));
+    }
+
+    @Test
     public void countBy() throws Exception {
         List<Integer> numbers = CollectionOps.of(1, 2, 1, 2, 3, 4, 5);
         Map<String, Integer> m = new HashMap<>();
         m.put("even", 3);
         m.put("odd", 4);
 
-        assertThat(CollectionOps.countBy(numbers, new Function<Integer, String>() {
-            @Override
-            public String apply(Integer input) {
-                return input % 2 == 0 ? "even" : "odd";
-            }
-        }), is(m));
+        assertThat(CollectionOps.countBy(numbers, input -> input % 2 == 0 ? "even" : "odd"), is(m));
     }
 
     private Semigroup<Integer> sum() {
-        return new Semigroup<Integer>() {
-            @Override
-            public Integer append(Integer a, Integer b) {
-                return a + b;
-            }
-        };
+        return (a, b) -> a + b;
     }
 }

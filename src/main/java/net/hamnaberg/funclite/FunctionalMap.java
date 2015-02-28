@@ -20,6 +20,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public final class FunctionalMap<K, V> implements Map<K, V> {
     private final Map<K, V> delegate;
@@ -80,7 +83,7 @@ public final class FunctionalMap<K, V> implements Map<K, V> {
         return create(MapOps.filter(delegate, p));
     }
 
-    public void foreach(Effect<Entry<K, V>> e){
+    public void foreach(Consumer<Entry<K, V>> e){
         MapOps.foreach(delegate, e);
     }
 

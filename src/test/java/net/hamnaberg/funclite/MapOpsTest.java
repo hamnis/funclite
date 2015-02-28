@@ -16,12 +16,7 @@ public class MapOpsTest {
     public void foreach_externalSideEffect(){
         final List<AtomicInteger> sideEffect = Lists.newArrayList();
         Map<Integer,AtomicInteger> map = MapOps.newHashMap(1, new AtomicInteger(1), 2, new AtomicInteger(2), 3, new AtomicInteger(3));
-        MapOps.foreach(map, new Effect<Map.Entry<Integer, AtomicInteger>>() {
-            @Override
-            public void exec(Map.Entry<Integer, AtomicInteger> entry) {
-                sideEffect.add(entry.getValue());
-            }
-        });
+        MapOps.foreach(map, entry -> sideEffect.add(entry.getValue()));
         for (AtomicInteger atomicInteger : sideEffect) {
             assertSame(map.get(atomicInteger.get()), atomicInteger);
         }
@@ -30,12 +25,7 @@ public class MapOpsTest {
     @Test
     public void foreach_mutationSideEffect(){
         Map<Integer,AtomicInteger> map = MapOps.newHashMap(1, new AtomicInteger(1), 2, new AtomicInteger(2), 3, new AtomicInteger(3));
-        MapOps.foreach(map, new Effect<Map.Entry<Integer, AtomicInteger>>() {
-            @Override
-            public void exec(Map.Entry<Integer, AtomicInteger> entry) {
-                entry.setValue(new AtomicInteger(entry.getValue().get()+1));
-            }
-        });
+        MapOps.foreach(map, entry -> entry.setValue(new AtomicInteger(entry.getValue().get()+1)));
         for (Integer integer : map.keySet()) {
             assertFalse(integer.equals(map.get(integer).get()));
         }

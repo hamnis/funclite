@@ -20,31 +20,34 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public final class MapOps {
     public static <K,V> Map<K,V> newHashMap() {
-        return new HashMap<K, V>();
+        return new HashMap<>();
     }
 
     public static <K,V> Map<K,V> newHashMap(Map<K, V> fromMap) {
-        return new HashMap<K, V>(fromMap);
+        return new HashMap<>(fromMap);
     }
 
     public static <K,V> Map<K,V> newHashMap(K k1, V v1) {
-        HashMap<K, V> hm = new HashMap<K, V>();
+        HashMap<K, V> hm = new HashMap<>();
         hm.put(k1, v1);
         return hm;
     }
 
     public static <K,V> Map<K,V> newHashMap(K k1, V v1, K k2, V v2) {
-        HashMap<K, V> hm = new HashMap<K, V>();
+        HashMap<K, V> hm = new HashMap<>();
         hm.put(k1, v1);
         hm.put(k2, v2);
         return hm;
     }
 
     public static <K,V> Map<K,V> newHashMap(K k1, V v1, K k2, V v2, K k3, V v3) {
-        HashMap<K, V> hm = new HashMap<K, V>();
+        HashMap<K, V> hm = new HashMap<>();
         hm.put(k1, v1);
         hm.put(k2, v2);
         hm.put(k3, v3);
@@ -52,7 +55,7 @@ public final class MapOps {
     }
 
     public static <K,V> Map<K,V> newHashMap(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
-        HashMap<K, V> hm = new HashMap<K, V>();
+        HashMap<K, V> hm = new HashMap<>();
         hm.put(k1, v1);
         hm.put(k2, v2);
         hm.put(k3, v3);
@@ -61,7 +64,7 @@ public final class MapOps {
     }
 
     public static <K,V> Map<K,V> newHashMap(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5) {
-        HashMap<K, V> hm = new HashMap<K, V>();
+        HashMap<K, V> hm = new HashMap<>();
         hm.put(k1, v1);
         hm.put(k2, v2);
         hm.put(k3, v3);
@@ -70,10 +73,10 @@ public final class MapOps {
         return hm;
     }
 
-    public static <K, V> void foreach(Map<K, V> input, Effect<Map.Entry<K, V>> effect){
+    public static <K, V> void foreach(Map<K, V> input, Consumer<Map.Entry<K, V>> effect){
         Set<Map.Entry<K,V>> entries = input.entrySet();
         for (Map.Entry<K, V> entry : entries) {
-            effect.exec(entry);
+            effect.accept(entry);
         }
     }
 
@@ -87,18 +90,13 @@ public final class MapOps {
     }
 
     public static <K,V> Map<K, V> filterKeys(Map<K, V> input, final Predicate<K> predicate) {
-        return filter(input, new Predicate<Map.Entry<K, V>>() {
-            @Override
-            public boolean apply(Map.Entry<K, V> input) {
-                return predicate.apply(input.getKey());
-            }
-        });
+        return filter(input, input1 -> predicate.test(input1.getKey()));
     }
 
     public static <K,V> Map<K, V> filter(Map<K, V> input, Predicate<Map.Entry<K, V>> predicate) {
         Map<K, V> map = MapOps.newHashMap();
         for (Map.Entry<K, V> entry : input.entrySet()) {
-            if (predicate.apply(entry)) {
+            if (predicate.test(entry)) {
                 map.put(entry.getKey(), entry.getValue());
             }
         }

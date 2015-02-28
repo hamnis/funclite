@@ -16,52 +16,13 @@
 
 package net.hamnaberg.funclite;
 
+import java.util.function.Function;
+
 public final class Functions {
     private Functions() {
     }
 
-    public static <A> Function<A, A> identity() {
-        return new Function<A, A>() {
-            @Override
-            public A apply(A input) {
-                return input;
-            }
-        };
-    }
-
-    public static <A, B, C> Function<A, C> compose(final Function<A, B> f, final Function<B, C> f2) {
-        return new Function<A, C>() {
-            @Override
-            public C apply(A input) {
-                return f2.apply(f.apply(input));
-            }
-        };
-    }
-
     public static <A> Function<A, String> asString() {
-        return new Function<A, String>() {
-            @Override
-            public String apply(A input) {
-                return input.toString();
-            }
-        };
-    }
-
-    public static <A,B> com.google.common.base.Function<A, B> toGuava(final Function<A, B> f) {
-        return new com.google.common.base.Function<A, B>() {
-            @Override
-            public B apply(A input) {
-                return f.apply(input);
-            }
-        };
-    }
-
-    public static <A,B> Function<A, B> fromGuava(final com.google.common.base.Function<A, B> f) {
-        return new Function<A, B>() {
-            @Override
-            public B apply(A input) {
-                return f.apply(input);
-            }
-        };
+        return Object::toString;
     }
 }

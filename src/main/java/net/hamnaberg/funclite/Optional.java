@@ -17,6 +17,11 @@
 package net.hamnaberg.funclite;
 
 import java.util.Iterator;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public abstract class Optional<A> implements Iterable<A> {
     public static None<Object> NONE = new None<Object>();
@@ -52,16 +57,20 @@ public abstract class Optional<A> implements Iterable<A> {
             return none();
         }
         else {
-            return Preconditions.checkNotNull(f.apply(get()));
+            return Objects.requireNonNull(f.apply(get()), "Optional.flatMap produced null");
         }
     }
 
-    public final void foreach(Effect<A> e) {
+    public Stream<A> stream() {
+        return CollectionOps.stream(this);
+    }
+
+    public final void foreach(Consumer<A> e) {
         CollectionOps.foreach(this, e);
     }
 
     public final Optional<A> filter(Predicate<A> input) {
-        if (isSome() && input.apply(get())) {
+        if (isSome() && input.test(get())) {
             return this;
         }
         else {
@@ -82,15 +91,7 @@ public abstract class Optional<A> implements Iterable<A> {
     }
 
     public static <A> Optional<A> some(A value) {
-        return new Some<A>(Preconditions.checkNotNull(value));
-    }
-
-    public com.google.common.base.Optional<A> toGuava() {
-        return com.google.common.base.Optional.fromNullable(orNull());
-    }
-
-    public static <A> Optional<A> fromGuava(com.google.common.base.Optional<A> opt) {
-        return fromNullable(opt.orNull());
+        return new Some<A>(Objects.requireNonNull(value));
     }
 
     @SuppressWarnings("unchecked")

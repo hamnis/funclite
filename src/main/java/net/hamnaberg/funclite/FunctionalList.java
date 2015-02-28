@@ -17,6 +17,11 @@
 package net.hamnaberg.funclite;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class FunctionalList<A> implements List<A> {
     private final List<A> delegate;
@@ -41,7 +46,7 @@ public final class FunctionalList<A> implements List<A> {
     }
 
     public <B> FunctionalList<B> map(Function<A, B> f) {
-        return create(CollectionOps.map(this, f));
+        return create(stream().map(f).collect(Collectors.toList()));
     }
 
     public <B> FunctionalList<B> flatMap(Function<A, Iterable<B>> f) {
@@ -49,7 +54,7 @@ public final class FunctionalList<A> implements List<A> {
             return empty();
         }
         else {
-            return create(CollectionOps.flatMap(this, f));
+            return create(stream().flatMap(a -> StreamSupport.stream(f.apply(a).spliterator(), false)).collect(Collectors.toList()));
         }
     }
 
@@ -57,8 +62,8 @@ public final class FunctionalList<A> implements List<A> {
         return new FunctionalList<A>(CollectionOps.filter(this, pred));
     }
 
-    public void foreach(Effect<A> effect) {
-        CollectionOps.foreach(this, effect);
+    public void foreach(Consumer<A> effect) {
+        stream().forEach(effect);
     }
 
     public boolean forall(Predicate<A> pred) {
@@ -89,7 +94,7 @@ public final class FunctionalList<A> implements List<A> {
         return CollectionOps.mkString(this, "[", sep, "]");
     }
 
-    public <K> Map<K, Collection<A>> groupBy(Function<A, K> grouper) {
+    public <K> Map<K, List<A>> groupBy(Function<A, K> grouper) {
         return CollectionOps.groupBy(this, grouper);
     }
 

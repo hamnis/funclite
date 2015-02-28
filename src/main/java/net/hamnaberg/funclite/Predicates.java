@@ -16,88 +16,45 @@
 
 package net.hamnaberg.funclite;
 
+import java.util.function.Predicate;
+
 public final class Predicates {
     private Predicates() {
     }
 
     public static <A> Predicate<A> not(final Predicate<A> p) {
-        return new Predicate<A>() {
-            @Override
-            public boolean apply(A input) {
-                return !p.apply(input);
-            }
-        };
+        return input -> !p.test(input);
     }
 
 
     public static <A> Predicate<A> and(final Predicate<A> p, final Predicate<A> p2) {
-        return new Predicate<A>() {
-            @Override
-            public boolean apply(A input) {
-                return p.apply(input) && p2.apply(input);
-            }
-        };
+        return input -> p.test(input) && p2.test(input);
     }
 
     public static <A> Predicate<A> or(final Predicate<A> p, final Predicate<A> p2) {
-        return new Predicate<A>() {
-            @Override
-            public boolean apply(A input) {
-                return p.apply(input) || p2.apply(input);
-            }
-        };
+        return input -> p.test(input) || p2.test(input);
     }
 
 
     @SuppressWarnings("unchecked")
     public static <A> Predicate<A> alwaysTrue() {
-        return (Predicate<A>) TRUE;
+        return input -> true;
     }
 
     @SuppressWarnings("unchecked")
     public static <A> Predicate<A> alwaysFalse() {
-        return (Predicate<A>) FALSE;
+        return input -> true;
     }
 
     public static Predicate<Integer> positive() {
-        return new Predicate<Integer>() {
-            @Override
-            public boolean apply(Integer input) {
-                return input != null && input > 0;
-            }
-        };
+        return input -> input != null && input > 0;
     }
 
     public static <A> com.google.common.base.Predicate<A> toGuava(final Predicate<A> f) {
-        return new com.google.common.base.Predicate<A>() {
-            @Override
-            public boolean apply(A input) {
-                return f.apply(input);
-            }
-        };
+        return f::test;
     }
 
     public static <A> Predicate<A> fromGuava(final com.google.common.base.Predicate<A> f) {
-        return new Predicate<A>() {
-            @Override
-            public boolean apply(A input) {
-                return f.apply(input);
-            }
-        };
+        return f::apply;
     }
-
-
-    public static Predicate<Object> TRUE = new Predicate<Object>() {
-        @Override
-        public boolean apply(Object input) {
-            return true;
-        }
-    };
-    public static Predicate<Object> FALSE = new Predicate<Object>() {
-        @Override
-        public boolean apply(Object input) {
-            return false;
-        }
-    };
-
 }

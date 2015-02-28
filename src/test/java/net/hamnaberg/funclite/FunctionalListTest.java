@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static net.hamnaberg.funclite.Optional.*;
 import static org.junit.Assert.*;
@@ -27,7 +28,7 @@ import static org.junit.Assert.*;
 public class FunctionalListTest {
     @Test
     public void construct() {
-        FunctionalList<Object> objects = FunctionalList.create(new ArrayList<Object>());
+        FunctionalList<Object> objects = FunctionalList.create(new ArrayList<>());
         assertNotNull(objects);
     }
 
@@ -42,24 +43,14 @@ public class FunctionalListTest {
     public void mapStringToInt() {
         FunctionalList<String> list = FunctionalList.of("1", "2", "3", "4", "5");
         FunctionalList<Integer> ints = FunctionalList.of(1, 2, 3, 4, 5);
-        assertEquals(ints, list.map(new Function<String, Integer>() {
-            @Override
-            public Integer apply(String input) {
-                return Integer.valueOf(input);
-            }
-        }));
+        assertEquals(ints, list.map(Integer::valueOf));
     }
 
     @Test
     public void foreach(){
         final AtomicInteger sideEffectCount = new AtomicInteger(0);
         FunctionalList<Integer> ints = FunctionalList.of(1, 2, 3);
-        ints.foreach(new Effect<Integer>() {
-            @Override
-            public void exec(Integer integer) {
-                sideEffectCount.incrementAndGet();
-            }
-        });
+        ints.foreach(i -> sideEffectCount.incrementAndGet());
         assertEquals(ints.size(), sideEffectCount.get());
     }
 

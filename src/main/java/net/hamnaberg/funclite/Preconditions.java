@@ -17,10 +17,20 @@
 package net.hamnaberg.funclite;
 
 public class Preconditions {
+    /**
+     *
+     * @deprecated Use {@link java.util.Objects#requireNonNull(A)}
+     */
+    @Deprecated
     public static <A> A checkNotNull(A input) {
         return checkNotNull(input, "input was null");
     }
 
+    /**
+     *
+     * @deprecated Use {@link java.util.Objects#requireNonNull(A, String)}
+     */
+    @Deprecated
     public static <A> A checkNotNull(A input, String message, Object... args) {
         if (input == null) {
             throw new IllegalArgumentException(String.format(message, args));

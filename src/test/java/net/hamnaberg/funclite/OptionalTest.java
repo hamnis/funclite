@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 
 public class OptionalTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void failWhenAddingNullToSome() {
         Optional.some(null);
     }
@@ -50,12 +50,7 @@ public class OptionalTest {
     public void foreach(){
         final AtomicReference<String> value = new AtomicReference<String>();
         Optional<String> some = Optional.some("Foreach all the things!");
-        some.foreach(new Effect<String>() {
-            @Override
-            public void exec(String s) {
-                value.set(s);
-            }
-        });
+        some.foreach(value::set);
         assertEquals(some.get(), value.get());
     }
 
@@ -68,25 +63,12 @@ public class OptionalTest {
                 fail("Some called noneF");
                 return null;
             }
-        }, new Function<String, Integer>() {
-            @Override
-            public Integer apply(String input) {
-                return Integer.valueOf(input);
-            }
-        });
+        }, Integer::valueOf);
         assertEquals(3, a.intValue());
         Optional<String> opt2 = Optional.none();
-        Integer b = opt2.fold(new Supplier<Integer>() {
-            @Override
-            public Integer get() {
-                return 0;
-            }
-        }, new Function<String, Integer>() {
-            @Override
-            public Integer apply(String input) {
-                fail("None called someF");
-                return null;
-            }
+        Integer b = opt2.fold(() -> 0, input -> {
+            fail("None called someF");
+            return null;
         });
         assertEquals(0, b.intValue());
     }

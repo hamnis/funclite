@@ -18,6 +18,12 @@ package net.hamnaberg.funclite;
 
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class CollectionOps {
 
@@ -36,12 +42,7 @@ public class CollectionOps {
     }
 
     public static <A> Iterable<A> iterable(final Iterator<A> it) {
-        return new Iterable<A>() {
-            @Override
-            public Iterator<A> iterator() {
-                return it;
-            }
-        };
+        return () -> it;
     }
 
     public static <A, B> List<B> map(final List<A> list, final Function<A, B> f) {
@@ -85,7 +86,7 @@ public class CollectionOps {
     public static <A> List<A> filter(final Iterable<A> list, final Predicate<A> f) {
         List<A> copy = newArrayList();
         for (A a : list) {
-            if (f.apply(a)) {
+            if (f.test(a)) {
                 copy.add(a);
             }
         }
@@ -133,41 +134,29 @@ public class CollectionOps {
         };
     }
 
-    public static <K, V> Map<K, Collection<V>> groupBy(Iterable<V> iterable, Function<V, K> grouper) {
-        Map<K, Collection<V>> map = new LinkedHashMap<>();
-        for (V v : iterable) {
-            K key = grouper.apply(v);
-            Collection<V> value = map.get(key);
-            if (value == null) {
-                value = newArrayList();
-                map.put(key, value);
-            }
-            value.add(v);
-        }
-        return map;
+    public static <K, V> Map<K, List<V>> groupBy(Iterable<V> iterable, Function<V, K> grouper) {
+        return stream(iterable).collect(Collectors.groupingBy(grouper));
+    }
+
+    public static <A> Stream<A> stream(Iterable<A> it) {
+        return StreamSupport.stream(it.spliterator(), false);
+    }
+
+    public static <A> Stream<A> parallelStream(Iterable<A> it) {
+        return StreamSupport.stream(it.spliterator(), true);
     }
 
     public static <A> boolean forall(final Iterable<A> iterable, Predicate<A> pred) {
-        for (A a : iterable) {
-            if (!pred.apply(a)) {
-                return false;
-            }
-        }
-        return true;
+        return stream(iterable).allMatch(pred);
     }
 
     public static <A> boolean exists(final Iterable<A> iterable, Predicate<A> pred) {
-        for (A a : iterable) {
-            if (pred.apply(a)) {
-                return true;
-            }
-        }
-        return false;
+        return stream(iterable).anyMatch(pred);
     }
 
     public static <A> Optional<A> find(final Collection<A> coll, final Predicate<A> f) {
         for (A a : coll) {
-            if (f.apply(a)) {
+            if (f.test(a)) {
                 return Optional.fromNullable(a);
             }
         }
@@ -179,14 +168,7 @@ public class CollectionOps {
     }
 
     public static <A> int size(Iterable<A> iterable) {
-        if (iterable instanceof Collection) {
-            return ((Collection)iterable).size();
-        }
-        int size = 0;
-        for (A ignore : iterable) {
-            size++;
-        }
-        return size;
+        return (int) stream(iterable).count();
     }
 
     public static <A>  boolean isEmpty(Iterable<A> iterable) {
@@ -209,9 +191,9 @@ public class CollectionOps {
         return set;
     }
 
-    public static <A> void foreach(Iterable<A> iterable, Effect<A> effect) {
+    public static <A> void foreach(Iterable<A> iterable, Consumer<A> effect) {
         for (A a : iterable) {
-            effect.exec(a);
+            effect.accept(a);
         }
     }
 
@@ -249,7 +231,7 @@ public class CollectionOps {
     }
 
     public static <A, B> Map<B, Integer> countBy(Iterable<A> iterable, Function<A, B> f) {
-        Map<B, Collection<A>> bCollectionMap = groupBy(iterable, f);
+        Map<B, List<A>> bCollectionMap = groupBy(iterable, f);
         Set<B> keySet = bCollectionMap.keySet();
         HashMap<B, Integer> map = new HashMap<>();
         for (B key : keySet) {
@@ -259,7 +241,7 @@ public class CollectionOps {
         return map;
     }
 
-    private static class StringArrayIterator implements Iterator<String> {
+    public static class StringArrayIterator implements Iterator<String> {
         private final String[] array;
         private int index = 0;
 

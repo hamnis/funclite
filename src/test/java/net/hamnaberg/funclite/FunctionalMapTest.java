@@ -62,12 +62,7 @@ public class FunctionalMapTest {
         map.put("two", "2");
         map.put("three", "3");
         FunctionalMap<String, String> wrapper = FunctionalMap.create(map);
-        FunctionalMap<String, Integer> mappedValues = wrapper.mapValues(new Function<String, Integer>() {
-            @Override
-            public Integer apply(String input) {
-                return Integer.valueOf(input);
-            }
-        });
+        FunctionalMap<String, Integer> mappedValues = wrapper.mapValues(Integer::valueOf);
 
         assertNotSame(wrapper, mappedValues);
 
