@@ -86,6 +86,10 @@ public abstract class Optional<A> implements Iterable<A> {
         return CollectionOps.exists(this, input);
     }
 
+    public boolean contains(A value) {
+        return exists(v -> v.equals(value));
+    }
+
     public static <A> Optional<A> fromNullable(A value) {
         return value != null ? some(value) : Optional.<A>none();
     }
