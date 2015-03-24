@@ -102,22 +102,10 @@ public class CollectionOps {
     }
 
     public static <V> String mkString(Iterable<V> iterable,String start, String separator, String end){
-        boolean first = true;
-        StringBuilder sb = new StringBuilder();
-        sb.append(start);
-        for (V v : iterable) {
-            if (v != null) {
-                if(first) {
-                    sb.append(v.toString());
-                    first = false;
-                } else {
-                    sb.append(separator);
-                    sb.append(v);
-                }    
-            }            
-        }
-        sb.append(end);
-        return sb.toString();
+        return StreamSupport.stream(iterable.spliterator(), false).
+                filter(a -> a != null).
+                map(Object::toString).
+                collect(Collectors.joining(separator, start, end));
     }
 
     public static Iterable<String> split(String input, String separator) {
