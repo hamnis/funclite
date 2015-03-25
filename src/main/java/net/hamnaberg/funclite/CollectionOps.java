@@ -66,31 +66,15 @@ public class CollectionOps {
     }
 
     public static <A, B> List<B> flatMap(final Iterable<A> list, final Function<A, Iterable<B>> f) {
-        ArrayList<B> toList = newArrayList();
-        for (A a : list) {
-            addAll(toList, f.apply(a));
-        }
-        return Collections.unmodifiableList(toList);
+        return Collections.unmodifiableList(stream(list).flatMap(i -> stream(f.apply(i))).collect(Collectors.toList()));
     }
 
     public static <A> List<A> flatten(final Iterable<Iterable<A>> list) {
-        List<A> toList = newArrayList();
-        for (Iterable<A> it : list) {
-            for (A a : it) {
-                toList.add(a);
-            }
-        }
-        return Collections.unmodifiableList(toList);
+        return Collections.unmodifiableList(stream(list).flatMap(CollectionOps::stream).collect(Collectors.toList()));
     }
 
     public static <A> List<A> filter(final Iterable<A> list, final Predicate<A> f) {
-        List<A> copy = newArrayList();
-        for (A a : list) {
-            if (f.test(a)) {
-                copy.add(a);
-            }
-        }
-        return Collections.unmodifiableList(copy);
+        return Collections.unmodifiableList(stream(list).filter(f).collect(Collectors.toList()));
     }
 
     public static <V> String mkString(Iterable<V> iterable){
@@ -109,17 +93,13 @@ public class CollectionOps {
     }
 
     public static Iterable<String> split(String input, String separator) {
-        final String[] split = input.split(separator);
-        return new Iterable<String>() {
-            public Iterator<String> iterator() {
-                return new StringArrayIterator(split);
-            }
-
-            @Override
-            public String toString() {
-                return mkString(this, "[", ",", "]");
-            }
-        };
+        if (input != null && separator != null) {
+            final String[] split = input.split(separator);
+            return Arrays.asList(split);
+        }
+        else {
+            return Collections.emptyList();
+        }
     }
 
     public static <K, V> Map<K, List<V>> groupBy(Iterable<V> iterable, Function<V, K> grouper) {
@@ -142,17 +122,12 @@ public class CollectionOps {
         return stream(iterable).anyMatch(pred);
     }
 
-    public static <A> Optional<A> find(final Collection<A> coll, final Predicate<A> f) {
-        for (A a : coll) {
-            if (f.test(a)) {
-                return Optional.fromNullable(a);
-            }
-        }
-        return Optional.none();
+    public static <A> Optional<A> find(final Iterable<A> coll, final Predicate<A> f) {
+        return OptionalOps.fromJavaOptional(stream(coll).filter(f).findFirst());
     }
 
     public static <A> Optional<A> headOption(final Iterable<A> coll) {
-        return isEmpty(coll) ? Optional.<A>none() : Optional.fromNullable(coll.iterator().next());
+        return find(coll, Predicates.alwaysTrue());
     }
 
     public static <A> int size(Iterable<A> iterable) {
@@ -163,10 +138,9 @@ public class CollectionOps {
         return !iterable.iterator().hasNext();
     }
 
+    @SafeVarargs
     public static <A> Set<A> setOf(A... values) {
-        LinkedHashSet<A> set = newLinkedHashSet();
-        Collections.addAll(set, values);
-        return set;
+        return setOf(Arrays.asList(values));
     }
 
     public static <A> LinkedHashSet<A> newLinkedHashSet() {
@@ -180,9 +154,7 @@ public class CollectionOps {
     }
 
     public static <A> void foreach(Iterable<A> iterable, Consumer<A> effect) {
-        for (A a : iterable) {
-            effect.accept(a);
-        }
+        stream(iterable).forEach(effect);
     }
 
     public static <A> Set<A> difference(Set<A> left, Set<A> right) {
@@ -227,31 +199,5 @@ public class CollectionOps {
         }
 
         return map;
-    }
-
-    public static class StringArrayIterator implements Iterator<String> {
-        private final String[] array;
-        private int index = 0;
-
-        public StringArrayIterator(String[] array) {
-            this.array = array;
-        }
-
-        public boolean hasNext() {
-            return isInRange(index);
-        }
-
-        private boolean isInRange(int idx) {
-            return array.length > 0 && array.length > idx;
-        }
-
-        public String next() {
-            return array[index++].trim();
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Not allowed");
-        }
     }
 }
