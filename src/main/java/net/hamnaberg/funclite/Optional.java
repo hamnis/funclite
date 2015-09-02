@@ -43,12 +43,16 @@ public abstract class Optional<A> implements Iterable<A> {
         return !isSome();
     }
 
+    public boolean isPresent() { return isSome(); }
+
+    public boolean isEmpty() { return isNone(); }
+
     public final <B> Optional<B> map(Function<A, B> f) {
         if (isNone()) {
             return none();
         }
         else {
-            return fromNullable(f.apply(get()));
+            return new Some<>(f.apply(get()));
         }
     }
 
@@ -94,13 +98,26 @@ public abstract class Optional<A> implements Iterable<A> {
         return value != null ? some(value) : Optional.<A>none();
     }
 
+    public static <A> Optional<A> ofNullable(A value) {
+        return fromNullable(value);
+    }
+
     public static <A> Optional<A> some(A value) {
+        return new Some<A>(Objects.requireNonNull(value));
+    }
+
+    public static <A> Optional<A> of(A value) {
         return new Some<A>(Objects.requireNonNull(value));
     }
 
     @SuppressWarnings("unchecked")
     public static <A> Optional<A> none() {
         return (Optional<A>) NONE;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <A> Optional<A> empty() {
+        return none();
     }
 
     public A orNull() {
